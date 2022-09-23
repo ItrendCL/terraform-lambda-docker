@@ -26,7 +26,9 @@ output "image_dockerfile" {
 # Export image URI and proposed generated lambda name
 output "image_uri" {
   value = join("", [
-    aws_ecr_repository.this.repository_url,
+    local.create_ecr
+    ? aws_ecr_repository.this[0].repository_url
+    : data.aws_ecr_repository.this[0].repository_url,
     "@",
     docker_registry_image.this.sha256_digest
   ])

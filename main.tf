@@ -19,16 +19,25 @@ data "aws_caller_identity" "current" {}
 locals {
   repository_name = trimsuffix(lower(join("/", [var.repository, var.suffix])), "/")
   context_path    = trimsuffix(var.path == null ? "../${var.suffix}" : var.path, "/")
+  create_ecr      = terraform.workspace == "main"
 }
 
 resource "aws_ecr_repository" "this" {
+  count = local.create_ecr ? 1 : 0
+
+  name = local.repository_name
+}
+
+data "aws_ecr_repository" "this" {
+  count = local.create_ecr ? 0 : 1
+
   name = local.repository_name
 }
 
 resource "aws_ecr_lifecycle_policy" "expire_untagged" {
-  count = var.image_expiration_days == null ? 0 : 1
+  count = local.create_ecr && var.image_expiration_days != null ? 1 : 0
 
-  repository = aws_ecr_repository.this.name
+  repository = aws_ecr_repository.this[0].name
   policy = jsonencode({
     rules = [{
       rulePriority = 1,
@@ -76,7 +85,15 @@ resource "null_resource" "changes" {
 }
 
 resource "docker_registry_image" "this" {
-  name = "${aws_ecr_repository.this.repository_url}:${terraform.workspace}"
+  name = join(
+    ":",
+    [
+      local.create_ecr
+      ? aws_ecr_repository.this[0].repository_url
+      : data.aws_ecr_repository.this[0].repository_url,
+      terraform.workspace
+    ]
+  )
 
   build {
     context    = local.context_path
