@@ -35,8 +35,5 @@ output "image_uri" {
 }
 
 output "lambda_name" {
-  value = join("-", [
-    replace(local.repository_name, "/", "-"),
-    terraform.workspace
-  ])
+  value = replace(local.repository_name, "/", "-")
 }
