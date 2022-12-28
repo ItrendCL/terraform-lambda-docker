@@ -19,7 +19,7 @@ data "aws_caller_identity" "current" {}
 locals {
   repository_name = trimsuffix(lower(join("/", [var.repository, var.suffix])), "/")
   context_path    = trimsuffix(var.path == null ? "../${var.suffix}" : var.path, "/")
-  create_ecr      = terraform.workspace == "main"
+  create_ecr      = terraform.workspace == "dev"
 }
 
 resource "aws_ecr_repository" "this" {
