@@ -9,7 +9,7 @@ module.
 
 These conventions are:
 
-1. The `main` workspace creates the ECR repository, other workspaces use it (this
+1. The `dev` workspace creates the ECR repository, other workspaces use it (this
    distinction boils down to resource vs data-source usage).
 1. The terraform workspace will be the (mutable) tag of the image.
 1. Images are identified by their SHA256 signature.
