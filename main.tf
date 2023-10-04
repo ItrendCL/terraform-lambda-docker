@@ -25,6 +25,10 @@ locals {
 resource "aws_ecr_repository" "this" {
   count = local.create_ecr ? 1 : 0
 
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
   name = local.repository_name
 }
 
