@@ -44,3 +44,7 @@ output "lambda_name_recomended" {
     terraform.workspace
   ])
 }
+
+output "ecr_repository" {
+  value = local.create_ecr ? aws_ecr_repository.this[0] : data.aws_ecr_repository.this[0]
+}
