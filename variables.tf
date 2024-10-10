@@ -36,3 +36,9 @@ variable "image_dockerfile" {
   default     = "Dockerfile"
   description = "The path to the Dockerfile"
 }
+
+variable "create_ecr" {
+  type        = bool
+  description = "Whether to create the ECR repository"
+  default     = null
+}

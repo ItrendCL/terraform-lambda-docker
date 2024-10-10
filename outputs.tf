@@ -26,7 +26,7 @@ output "image_dockerfile" {
 # Export image URI and proposed generated lambda name
 output "image_uri" {
   value = join("", [
-    local.create_ecr
+    local.create_ecr_final
     ? aws_ecr_repository.this[0].repository_url
     : data.aws_ecr_repository.this[0].repository_url,
     "@",
@@ -46,5 +46,5 @@ output "lambda_name_recomended" {
 }
 
 output "ecr_repository" {
-  value = local.create_ecr ? aws_ecr_repository.this[0] : data.aws_ecr_repository.this[0]
+  value = local.create_ecr_final ? aws_ecr_repository.this[0] : data.aws_ecr_repository.this[0]
 }

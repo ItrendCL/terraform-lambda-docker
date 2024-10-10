@@ -17,13 +17,14 @@ data "aws_caller_identity" "current" {}
 
 # Define the ECR repository
 locals {
-  repository_name = trimsuffix(lower(join("/", [var.repository, var.suffix])), "/")
-  context_path    = trimsuffix(var.path == null ? "../${var.suffix}" : var.path, "/")
-  create_ecr      = terraform.workspace == "dev"
+  repository_name  = trimsuffix(lower(join("/", [var.repository, var.suffix])), "/")
+  context_path     = trimsuffix(var.path == null ? "../${var.suffix}" : var.path, "/")
+  is_dev_workspace = terraform.workspace == "dev"
+  create_ecr_final = var.create_ecr != null ? var.create_ecr : local.is_dev_workspace
 }
 
 resource "aws_ecr_repository" "this" {
-  count = local.create_ecr ? 1 : 0
+  count = local.create_ecr_final ? 1 : 0
 
   image_scanning_configuration {
     scan_on_push = true
@@ -33,13 +34,13 @@ resource "aws_ecr_repository" "this" {
 }
 
 data "aws_ecr_repository" "this" {
-  count = local.create_ecr ? 0 : 1
+  count = local.create_ecr_final ? 0 : 1
 
   name = local.repository_name
 }
 
 resource "aws_ecr_lifecycle_policy" "expire_untagged" {
-  count = local.create_ecr && var.image_expiration_days != null ? 1 : 0
+  count = local.create_ecr_final && var.image_expiration_days != null ? 1 : 0
 
   repository = aws_ecr_repository.this[0].name
   policy = jsonencode({
