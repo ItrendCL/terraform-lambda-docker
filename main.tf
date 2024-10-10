@@ -93,7 +93,7 @@ resource "docker_registry_image" "this" {
   name = join(
     ":",
     [
-      local.create_ecr
+      local.create_ecr_final
       ? aws_ecr_repository.this[0].repository_url
       : data.aws_ecr_repository.this[0].repository_url,
       terraform.workspace
