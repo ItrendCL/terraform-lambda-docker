@@ -22,7 +22,14 @@ variable "image_expiration_days" {
   type        = number
   nullable    = true
   default     = 14
-  description = "The days an untagged image survives in ECR; set to null to never expire"
+  description = "The days an untagged image survives in ECR; set to null to never expire. Ignored when lifecycle_policy is set"
+}
+
+variable "lifecycle_policy" {
+  type        = string
+  nullable    = true
+  default     = null
+  description = "ECR lifecycle policy JSON for the repository; replaces the image_expiration_days rule when set. Only applied where this module creates the ECR repository"
 }
 
 variable "image_build_args" {

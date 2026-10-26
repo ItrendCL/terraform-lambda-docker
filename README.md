@@ -64,3 +64,31 @@ module "lambda_a" {
   image_dockerfile      = "production.Dockerfile"
 }
 ```
+
+To manage the repository's lifecycle policy yourself, pass the full policy JSON. It
+replaces the untagged-expiration rule and, like the repository, is only managed by the
+workspace that creates the ECR repository (see `create_ecr`). Do not also declare an
+`aws_ecr_lifecycle_policy` for this repository outside the module: a repository has a
+single lifecycle policy, and both resources would overwrite each other.
+
+```terraform
+module "lambda_image" {
+  source = "github.com/ItrendCL/terraform-lambda-docker"
+
+  repository = "github-user-or-organization/repository-name"
+
+  lifecycle_policy = jsonencode({
+    rules = [{
+      rulePriority = 1
+      description  = "Keep last 5 main images"
+      selection = {
+        tagStatus     = "tagged"
+        tagPrefixList = ["main"]
+        countType     = "imageCountMoreThan"
+        countNumber   = 5
+      }
+      action = { type = "expire" }
+    }]
+  })
+}
+```

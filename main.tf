@@ -40,10 +40,10 @@ data "aws_ecr_repository" "this" {
 }
 
 resource "aws_ecr_lifecycle_policy" "expire_untagged" {
-  count = local.create_ecr_final && var.image_expiration_days != null ? 1 : 0
+  count = local.create_ecr_final && (var.lifecycle_policy != null || var.image_expiration_days != null) ? 1 : 0
 
   repository = aws_ecr_repository.this[0].name
-  policy = jsonencode({
+  policy = var.lifecycle_policy != null ? var.lifecycle_policy : jsonencode({
     rules = [{
       rulePriority = 1,
       description  = "Expire images older than ${var.image_expiration_days} days",
